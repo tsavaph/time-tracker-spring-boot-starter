@@ -29,19 +29,13 @@ public class TimeTrackerMethodContext {
     }
 
     public long getExecutionTimeInTimeUnit() {
-        if (ChronoUnit.NANOS.equals(timeUnit)) {
-            return executionTimeNanos;
-        }
-        if (ChronoUnit.MICROS.equals(timeUnit)) {
-            return executionTimeNanos / 1000;
-        }
-        if (ChronoUnit.MILLIS.equals(timeUnit)) {
-            return executionTimeNanos / 1_000_000;
-        }
-        if (ChronoUnit.SECONDS.equals(timeUnit)) {
-            return executionTimeNanos / 1_000_000_000;
-        }
-        throw new IllegalStateException("Time unit not supported");
+        return switch (timeUnit) {
+            case NANOS -> executionTimeNanos;
+            case MICROS -> executionTimeNanos / 1_000;
+            case MILLIS -> executionTimeNanos / 1_000_000;
+            case SECONDS -> executionTimeNanos / 1_000_000_000;
+            default -> throw new IllegalStateException("Time unit not supported: " + timeUnit);
+        };
     }
 
     public String getTimeUnitString() {

@@ -33,31 +33,61 @@ public class TimeTrackerThreadContext {
         this.methodContexts.add(timeTrackerMethodContext);
     }
 
+//    public void logMethodTimeTrace() {
+//        for (var methodContext : methodContexts) {
+//            if (methodContext.isTimeThresholdExceeded()) {
+//                var infoToBeLogged = new ArrayList<>();
+//                var messageTemplateBuilder = new StringBuilder("{} {} - {} {}");
+//
+//                var offset = generateOffset(methodContext.getPointerDepth());
+//                var methodName = methodContext.getMethodName();
+//                var executionTime = methodContext.getExecutionTimeInTimeUnit();
+//                var timeUnit = methodContext.getTimeUnitString();
+//
+//                infoToBeLogged.add(offset);
+//                infoToBeLogged.add(methodName);
+//                infoToBeLogged.add(executionTime);
+//                infoToBeLogged.add(timeUnit);
+//
+//                if (methodContext.isArgumentsIncluded()) {
+//                    var arguments = methodContext.getArguments();
+//                    infoToBeLogged.add(arguments);
+//                    messageTemplateBuilder.append(". Arguments: {}");
+//                }
+//
+//                log.info(messageTemplateBuilder.toString(), infoToBeLogged.toArray());
+//            }
+//        }
+//    }
+
     public void logMethodTimeTrace() {
+        if (methodContexts.isEmpty()) {
+            return;
+        }
+        var messageTemplateBuilder = new StringBuilder();
+        var infoToBeLogged = new ArrayList<>();
+
         for (var methodContext : methodContexts) {
             if (methodContext.isTimeThresholdExceeded()) {
-                var infoToBeLogged = new ArrayList<>();
-                var messageTemplateBuilder = new StringBuilder("{} {} - {} {}");
+                messageTemplateBuilder.append("\n{} {} - {} {}");
 
                 var offset = generateOffset(methodContext.getPointerDepth());
                 var methodName = methodContext.getMethodName();
                 var executionTime = methodContext.getExecutionTimeInTimeUnit();
                 var timeUnit = methodContext.getTimeUnitString();
-
                 infoToBeLogged.add(offset);
                 infoToBeLogged.add(methodName);
                 infoToBeLogged.add(executionTime);
                 infoToBeLogged.add(timeUnit);
 
                 if (methodContext.isArgumentsIncluded()) {
+                    messageTemplateBuilder.append(". Arguments: {}");
                     var arguments = methodContext.getArguments();
                     infoToBeLogged.add(arguments);
-                    messageTemplateBuilder.append(". Arguments: {}");
                 }
-
-                log.info(messageTemplateBuilder.toString(), infoToBeLogged.toArray());
             }
         }
+        log.info(messageTemplateBuilder.toString(), infoToBeLogged.toArray());
     }
 
     private String generateOffset(int pointerDepth) {
