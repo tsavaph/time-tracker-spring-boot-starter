@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.tsavaph.aspect.TimeTrackerAspect;
-import ru.tsavaph.DisabledTimeTrackerService;
 import ru.tsavaph.EnabledTimeTrackerService;
 import ru.tsavaph.TimeTrackerService;
 

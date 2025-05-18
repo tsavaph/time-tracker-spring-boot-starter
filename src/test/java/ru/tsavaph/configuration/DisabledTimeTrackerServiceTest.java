@@ -1,15 +1,20 @@
-package ru.tsavaph;
+package ru.tsavaph.configuration;
 
 import org.junit.jupiter.api.Test;
+import ru.tsavaph.TimeTrackerInfo;
+import ru.tsavaph.TimeTrackerService;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
+/**
+ * Unit test for {@link DisabledTimeTrackerService}
+ */
 class DisabledTimeTrackerServiceTest {
 
-    DisabledTimeTrackerService service = new DisabledTimeTrackerService();
+    TimeTrackerService service = new DisabledTimeTrackerService();
     TimeTrackerInfo info = mock(TimeTrackerInfo.class);
 
     @Test
@@ -21,11 +26,12 @@ class DisabledTimeTrackerServiceTest {
 
     @Test
     void trackTime_shouldPassThroughException() {
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            service.trackTime(info, () -> {
-                throw new RuntimeException("fail");
-            });
-        });
+        var exception = assertThrows(
+                RuntimeException.class,
+                () -> service.trackTime(info, () -> {
+                    throw new RuntimeException("fail");
+                })
+        );
 
         assertEquals("fail", exception.getMessage());
     }
@@ -41,12 +47,12 @@ class DisabledTimeTrackerServiceTest {
 
     @Test
     void trackTimeRunnable_shouldPropagateException() {
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            service.trackTime(info, () -> {
-                throw new RuntimeException("fail");
-            });
-        });
-
+        var exception = assertThrows(
+                RuntimeException.class,
+                () -> service.trackTime(info, () -> {
+                    throw new RuntimeException("fail");
+                })
+        );
         assertEquals("fail", exception.getMessage());
     }
 }

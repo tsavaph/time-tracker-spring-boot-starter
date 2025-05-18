@@ -13,10 +13,13 @@ import java.time.temporal.ChronoUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Unit test for {@link EnabledTimeTrackerService}
+ */
 class EnabledTimeTrackerServiceTest {
 
 
-    EnabledTimeTrackerService service;
+    TimeTrackerService service;
 
     ListAppender<ILoggingEvent> listAppender;
 
