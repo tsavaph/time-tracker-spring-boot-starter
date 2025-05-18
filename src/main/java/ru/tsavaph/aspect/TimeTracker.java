@@ -28,17 +28,21 @@ import java.time.temporal.ChronoUnit;
 public @interface TimeTracker {
 
     /**
-     * Time unit for logging execution time. By default, {@code µs}.
+     * Time unit for logging execution time. By default, {@code ms}.
+     *
+     * @return time unit for logging execution time.
      */
     ChronoUnit timeUnit() default ChronoUnit.MILLIS;
 
     /**
      * Include arguments or not into log. See example for parent method.  By default, {@code false}.
+     * @return if arguments is included.
      */
     boolean argumentsIncluded() default false;
 
     /**
      * Threshold for logging. If method execution time is below the threshold, it won't be logged. By default, disabled.
+     * @return execution time threshold for logging in time units.
      */
     int timeThreshold() default TimeTrackerConstant.NO_TIME_THRESHOLD;
 

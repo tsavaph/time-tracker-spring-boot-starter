@@ -14,6 +14,7 @@ public interface TimeTrackerService {
      *
      * @param timeTrackerInfo provided additional info for logging.
      * @param supplier        provided supplier for measurement.
+     * @param <T>             the type of results supplied by this supplier
      * @return supplier's result.
      */
     <T> T trackTime(TimeTrackerInfo timeTrackerInfo, Supplier<T> supplier);

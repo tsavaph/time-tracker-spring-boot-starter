@@ -26,14 +26,18 @@ public class TimeTrackerMethodContext {
     private long executionTimeNanos;
 
     /**
-     * Returns {code true} if threshold disabled or execution time more than threshold.
+     * Shows if execution time greater than set threshold.
+     *
+     * @return {code true} if threshold disabled or execution time more than threshold.
      */
     public boolean isTimeThresholdExceeded() {
         return timeThreshold == TimeTrackerConstant.NO_TIME_THRESHOLD || getExecutionTimeInTimeUnit() > timeThreshold;
     }
 
     /**
-     * Returns execution time in set time units.
+     * Execution time.
+     *
+     * @return execution time in set time units.
      */
     public long getExecutionTimeInTimeUnit() {
         return switch (timeUnit) {
@@ -46,7 +50,9 @@ public class TimeTrackerMethodContext {
     }
 
     /**
-     * Returns beautiful representation of set time units. For example 'ns' for {@link ChronoUnit#NANOS}.
+     * Time units symbol for logs.
+     *
+     * @return beautiful representation of set time units. For example 'ns' for {@link ChronoUnit#NANOS}.
      */
     public String getTimeUnitString() {
         if (ChronoUnit.NANOS.equals(timeUnit)) {

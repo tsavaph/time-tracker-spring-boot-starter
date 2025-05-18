@@ -16,23 +16,40 @@ public class TimeTrackerThreadContext {
 
     private int pointerDepth;
 
+    /**
+     * Initialize thread context for logging.
+     */
     public TimeTrackerThreadContext() {
         methodContexts = new ArrayList<>();
         pointerDepth = 0;
     }
 
+    /**
+     * Increase a pointer showing the current method in queue is being executed.
+     */
     public void increasePointerDepth() {
         pointerDepth++;
     }
 
+    /**
+     * Decrease a pointer showing the current method in queue is being executed.
+     */
     public void decreasePointerDepth() {
         pointerDepth--;
     }
 
+    /**
+     * Add executing method context to the thread context.
+     *
+     * @param timeTrackerMethodContext the context of executing method.
+     */
     public void addMethodContext(TimeTrackerMethodContext timeTrackerMethodContext) {
         this.methodContexts.add(timeTrackerMethodContext);
     }
 
+    /**
+     * Log all execution time info after completing of the parent method.
+     */
     public void logMethodTimeTrace() {
         if (methodContexts.isEmpty()) {
             return;

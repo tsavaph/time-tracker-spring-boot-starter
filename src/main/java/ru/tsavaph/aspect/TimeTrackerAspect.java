@@ -29,6 +29,11 @@ public class TimeTrackerAspect {
 
     private final TimeTrackerService timeTrackerService;
 
+    /**
+     * Tracks execution time around annotated method.
+     * @param joinPoint proceeding method.
+     * @return the result of the method.
+     */
     @Around("@annotation(ru.tsavaph.aspect.TimeTracker)")
     public Object trackTime(ProceedingJoinPoint joinPoint) {
         var timeTrackerAnnotation = extractTimeTrackerAnnotation(joinPoint);
