@@ -36,14 +36,25 @@ public @interface TimeTracker {
 
     /**
      * Include arguments or not into log. See example for parent method.  By default, {@code false}.
+     *
      * @return if arguments is included.
      */
     boolean argumentsIncluded() default false;
 
     /**
      * Threshold for logging. If method execution time is below the threshold, it won't be logged. By default, disabled.
+     *
      * @return execution time threshold for logging in time units.
      */
     int timeThreshold() default TimeTrackerConstant.NO_TIME_THRESHOLD;
+
+    /**
+     * Threshold value property, see {@link TimeTracker#timeThreshold()} description. Must be match  <p>
+     * {@code ${property-path.time-threshold}} pattern. Only integers in property allowed. If property is not set,
+     * {@link TimeTracker#timeThreshold()} will be used.
+     *
+     * @return Threshold value property matching {@code ${property-path.time-threshold}} pattern.
+     */
+    String propertyTimeThreshold() default TimeTrackerConstant.NO_PROPERTY_THRESHOLD;
 
 }

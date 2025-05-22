@@ -19,14 +19,14 @@ class DisabledTimeTrackerServiceTest {
 
     @Test
     void trackTime_shouldReturnValue() {
-        var result = service.trackTime(info, () -> "result");
+        String result = service.trackTime(info, () -> "result");
 
         assertEquals("result", result);
     }
 
     @Test
     void trackTime_shouldPassThroughException() {
-        var exception = assertThrows(
+        Exception exception = assertThrows(
                 RuntimeException.class,
                 () -> service.trackTime(info, () -> {
                     throw new RuntimeException("fail");
@@ -38,7 +38,7 @@ class DisabledTimeTrackerServiceTest {
 
     @Test
     void trackTimeRunnable_shouldRunSuccessfully() {
-        var wasRun = new AtomicBoolean(false);
+        AtomicBoolean wasRun = new AtomicBoolean(false);
 
         service.trackTime(info, () -> wasRun.set(true));
 
@@ -47,7 +47,7 @@ class DisabledTimeTrackerServiceTest {
 
     @Test
     void trackTimeRunnable_shouldPropagateException() {
-        var exception = assertThrows(
+        Exception exception = assertThrows(
                 RuntimeException.class,
                 () -> service.trackTime(info, () -> {
                     throw new RuntimeException("fail");

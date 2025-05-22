@@ -2,8 +2,10 @@ package ru.tsavaph;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.event.Level;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Context for the thread with all included tracking methods or blocks of code execution.
@@ -50,34 +52,37 @@ public class TimeTrackerThreadContext {
     /**
      * Log all execution time info after completing of the parent method.
      */
-    public void logMethodTimeTrace() {
+    public void logMethodTimeTrace(Level logLevel) {
         if (methodContexts.isEmpty()) {
             return;
         }
-        var messageTemplateBuilder = new StringBuilder();
-        var infoToBeLogged = new ArrayList<>();
+        if (!methodContexts.get(0).isTimeThresholdExceeded()) {
+            return;
+        }
+        StringBuilder messageTemplateBuilder = new StringBuilder();
+        List<String> infoToBeLogged = new ArrayList<>();
 
-        for (var methodContext : methodContexts) {
+        for (TimeTrackerMethodContext methodContext : methodContexts) {
             if (methodContext.isTimeThresholdExceeded()) {
                 messageTemplateBuilder.append("\n{} {} - {} {}");
 
-                var offset = generateOffset(methodContext.getPointerDepth());
-                var methodName = methodContext.getMethodName();
-                var executionTime = methodContext.getExecutionTimeInTimeUnit();
-                var timeUnit = methodContext.getTimeUnitString();
+                String offset = generateOffset(methodContext.getPointerDepth());
+                String methodName = methodContext.getTimeTrackerInfo().methodName();
+                long executionTime = methodContext.getExecutionTimeInTimeUnit();
+                String timeUnit = methodContext.getTimeUnitString();
                 infoToBeLogged.add(offset);
                 infoToBeLogged.add(methodName);
-                infoToBeLogged.add(executionTime);
+                infoToBeLogged.add(String.valueOf(executionTime));
                 infoToBeLogged.add(timeUnit);
 
-                if (methodContext.isArgumentsIncluded()) {
+                if (methodContext.getTimeTrackerInfo().argumentsIncluded()) {
                     messageTemplateBuilder.append(". Arguments: {}");
-                    var arguments = methodContext.getArguments();
+                    String arguments = methodContext.getTimeTrackerInfo().methodArguments();
                     infoToBeLogged.add(arguments);
                 }
             }
         }
-        log.info(messageTemplateBuilder.toString(), infoToBeLogged.toArray());
+        logIfNotEmpty(messageTemplateBuilder, infoToBeLogged, logLevel);
     }
 
     private String generateOffset(int pointerDepth) {
@@ -86,6 +91,12 @@ public class TimeTrackerThreadContext {
         }
         return TimeTrackerConstant.SPACE.repeat(pointerDepth * 2)
                 + TimeTrackerConstant.OFFSET_SYMBOL;
+    }
+
+    private void logIfNotEmpty(StringBuilder messageTemplateBuilder, List<String> infoToBeLogged, Level logLevel) {
+        if (!infoToBeLogged.isEmpty()) {
+            log.atLevel(logLevel).log(messageTemplateBuilder.toString(), infoToBeLogged.toArray());
+        }
     }
 
 }

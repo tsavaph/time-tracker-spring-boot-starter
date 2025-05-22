@@ -9,11 +9,14 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.CodeSignature;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.env.Environment;
 import ru.tsavaph.TimeTrackerConstant;
 import ru.tsavaph.TimeTrackerInfo;
 import ru.tsavaph.TimeTrackerService;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -28,20 +31,22 @@ import java.util.stream.IntStream;
 public class TimeTrackerAspect {
 
     private final TimeTrackerService timeTrackerService;
+    private final Environment environment;
 
     /**
      * Tracks execution time around annotated method.
+     *
      * @param joinPoint proceeding method.
      * @return the result of the method.
      */
     @Around("@annotation(ru.tsavaph.aspect.TimeTracker)")
     public Object trackTime(ProceedingJoinPoint joinPoint) {
-        var timeTrackerAnnotation = extractTimeTrackerAnnotation(joinPoint);
-        var timeTrackerInfo = new TimeTrackerInfo(
+        TimeTracker timeTrackerAnnotation = extractTimeTrackerAnnotation(joinPoint);
+        TimeTrackerInfo timeTrackerInfo = new TimeTrackerInfo(
                 extractMethodName(joinPoint),
                 extractMethodArguments(joinPoint),
                 timeTrackerAnnotation.argumentsIncluded(),
-                timeTrackerAnnotation.timeThreshold(),
+                chooseTimeThreshold(timeTrackerAnnotation),
                 timeTrackerAnnotation.timeUnit()
         );
         return timeTrackerService.trackTime(timeTrackerInfo, () -> proceed(joinPoint));
@@ -61,17 +66,24 @@ public class TimeTrackerAspect {
         }
     }
 
+    private int chooseTimeThreshold(TimeTracker timeTrackerAnnotation) {
+        String propertyTimeThreshold = timeTrackerAnnotation.propertyTimeThreshold();
+        if (TimeTrackerConstant.NO_PROPERTY_THRESHOLD.equals(propertyTimeThreshold)) {
+            return timeTrackerAnnotation.timeThreshold();
+        }
+        return Integer.parseInt(environment.resolvePlaceholders(propertyTimeThreshold));
+    }
 
     private String extractMethodName(ProceedingJoinPoint joinPoint) {
-        var methodSignature = extractMethodSignature(joinPoint);
-        var method = methodSignature.getMethod();
+        MethodSignature methodSignature = extractMethodSignature(joinPoint);
+        Method method = methodSignature.getMethod();
 
-        var modifiers = Modifier.toString(method.getModifiers());
-        var returnType = method.getReturnType().getSimpleName();
-        var methodName = method.getName();
-        var parameters = method.getParameters();
+        String modifiers = Modifier.toString(method.getModifiers());
+        String returnType = method.getReturnType().getSimpleName();
+        String methodName = method.getName();
+        Parameter[] parameters = method.getParameters();
 
-        var params = Arrays.stream(parameters)
+        String params = Arrays.stream(parameters)
                 .map(p -> p.getType().getSimpleName() + " " + p.getName())
                 .collect(Collectors.joining(", "));
 
@@ -79,8 +91,8 @@ public class TimeTrackerAspect {
     }
 
     private String extractMethodArguments(JoinPoint joinPoint) {
-        var args = joinPoint.getArgs();
-        var paramNames = ((CodeSignature) joinPoint.getSignature()).getParameterNames();
+        Object[] args = joinPoint.getArgs();
+        String[] paramNames = ((CodeSignature) joinPoint.getSignature()).getParameterNames();
 
         if (args == null || paramNames == null) {
             return TimeTrackerConstant.EMPTY_STRING;
@@ -92,14 +104,14 @@ public class TimeTrackerAspect {
     }
 
     private MethodSignature extractMethodSignature(JoinPoint joinPoint) {
-        var methodSignature = (MethodSignature) joinPoint.getSignature();
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         assert methodSignature != null;
         return methodSignature;
     }
 
     private TimeTracker extractTimeTrackerAnnotation(JoinPoint joinPoint) {
-        var methodSignature = extractMethodSignature(joinPoint);
-        var annotation = methodSignature.getMethod().getAnnotation(TimeTracker.class);
+        MethodSignature methodSignature = extractMethodSignature(joinPoint);
+        TimeTracker annotation = methodSignature.getMethod().getAnnotation(TimeTracker.class);
         assert annotation != null;
         return annotation;
     }

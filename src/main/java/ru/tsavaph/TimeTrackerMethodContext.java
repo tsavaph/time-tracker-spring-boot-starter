@@ -17,12 +17,7 @@ import java.time.temporal.ChronoUnit;
 public class TimeTrackerMethodContext {
 
     private final int pointerDepth;
-    private final String methodName;
-    private final String arguments;
-    private final boolean argumentsIncluded;
-    private final int timeThreshold;
-    private final ChronoUnit timeUnit;
-
+    private final TimeTrackerInfo timeTrackerInfo;
     private long executionTimeNanos;
 
     /**
@@ -31,6 +26,7 @@ public class TimeTrackerMethodContext {
      * @return {code true} if threshold disabled or execution time more than threshold.
      */
     public boolean isTimeThresholdExceeded() {
+        int timeThreshold = timeTrackerInfo.timeThreshold();
         return timeThreshold == TimeTrackerConstant.NO_TIME_THRESHOLD || getExecutionTimeInTimeUnit() > timeThreshold;
     }
 
@@ -40,6 +36,7 @@ public class TimeTrackerMethodContext {
      * @return execution time in set time units.
      */
     public long getExecutionTimeInTimeUnit() {
+        ChronoUnit timeUnit = timeTrackerInfo.timeUnit();
         return switch (timeUnit) {
             case NANOS -> executionTimeNanos;
             case MICROS -> executionTimeNanos / 1_000;
@@ -55,6 +52,7 @@ public class TimeTrackerMethodContext {
      * @return beautiful representation of set time units. For example 'ns' for {@link ChronoUnit#NANOS}.
      */
     public String getTimeUnitString() {
+        ChronoUnit timeUnit = timeTrackerInfo.timeUnit();
         if (ChronoUnit.NANOS.equals(timeUnit)) {
             return "ns";
         }
