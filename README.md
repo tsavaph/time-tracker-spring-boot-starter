@@ -83,7 +83,7 @@ public class ChildTestService {
 
 #### Gradle
 ```groovy
-implementation group: 'ru.tsavaph', name: 'time-tracker-spring-boot-starter', version: '1.0.0'
+implementation group: 'ru.tsavaph', name: 'time-tracker-spring-boot-starter', version: '1.1.1'
 ```
 
 #### Maven
@@ -91,6 +91,6 @@ implementation group: 'ru.tsavaph', name: 'time-tracker-spring-boot-starter', ve
 <dependency>
     <groupId>ru.tsavaph</groupId>
     <artifactId>time-tracker-spring-boot-starter</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
