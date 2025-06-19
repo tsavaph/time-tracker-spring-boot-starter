@@ -12,8 +12,7 @@ import java.time.temporal.ChronoUnit;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for {@link EnabledTimeTrackerService}
@@ -76,8 +75,7 @@ class EnabledTimeTrackerServiceTest {
         );
         String result = service.trackTime(info, () -> {
             try {
-                service.trackTime(info, () -> {
-                });
+                service.trackTime(info, () -> {});
                 Thread.sleep(5);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -87,6 +85,43 @@ class EnabledTimeTrackerServiceTest {
 
         assertEquals("result", result);
         assertTrue(listAppender.list.isEmpty());
+    }
+
+    @Test
+    void trackTimeManyTimes_runtimeException_loggedMethodExecutionInfo() {
+        final var measureCount = 5;
+        TimeTrackerInfo info = new TimeTrackerInfo(
+                "private void testMethod(String a, int b)",
+                "a=test, b=1",
+                true,
+                1,
+                ChronoUnit.NANOS
+        );
+        for (int i = 0; i < measureCount; i++) {
+            assertThrows(
+                    RuntimeException.class,
+                    () -> service.trackTime(info, () -> {
+                        try {
+                            service.trackTime(info, () -> {
+                                throw new RuntimeException();
+                            });
+                            Thread.sleep(5);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                        return "result";
+                    })
+            );
+        }
+        assertEquals(measureCount, listAppender.list.size());
+        for (var loggedInfo: listAppender.list) {
+            String[] lines = loggedInfo.getFormattedMessage().split("\n");
+            assertEquals(3, lines.length);
+            assertEquals("", lines[0]);
+            assertThat(lines[1]).matches(" private void testMethod\\(String a, int b\\) - \\d+ ns\\. Arguments: a=test, b=1");
+            assertThat(lines[2]).matches(" {2}\\|-- private void testMethod\\(String a, int b\\) - \\d+ ns\\. Arguments: a=test, b=1");
+            assertEquals(Level.ERROR, loggedInfo.getLevel());
+        }
     }
 
 }

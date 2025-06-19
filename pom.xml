@@ -11,7 +11,7 @@
 
 	<groupId>ru.tsavaph</groupId>
 	<artifactId>time-tracker-spring-boot-starter</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1</version>
 	<name>Time Tracker Spring Boot Starter</name>
 	<description>Spring Boot Starter for measuring method execution time</description>
 	<url>https://github.com/tsavaph/time-tracker-spring-boot-starter</url>

@@ -35,27 +35,29 @@ public class EnabledTimeTrackerService implements TimeTrackerService {
         threadContext.increasePointerDepth();
 
         long startTime = System.nanoTime();
-        T result = supplier.get();
-        long endTime = System.nanoTime();
-
-        methodContext.setExecutionTimeNanos(endTime - startTime);
-
-        log.debug(
-                "TimeTrackerMethodContext for method {} finished in thread {}. Execution time = {} ns",
-                timeTrackerInfo.methodName(),
-                currentThreadName,
-                methodContext.getExecutionTimeNanos()
-        );
-
-        threadContext.decreasePointerDepth();
-
-        if (threadContext.getPointerDepth() == 0) {
-            threadContext.logMethodTimeTrace(logLevel);
-            threadLocalContext.remove();
-            log.debug("TimeTrackerThreadContext for thread {} completed and removed", currentThreadName);
+        try {
+            return supplier.get();
         }
+        finally {
+            long endTime = System.nanoTime();
 
-        return result;
+            methodContext.setExecutionTimeNanos(endTime - startTime);
+
+            log.debug(
+                    "TimeTrackerMethodContext for method {} finished in thread {}. Execution time = {} ns",
+                    timeTrackerInfo.methodName(),
+                    currentThreadName,
+                    methodContext.getExecutionTimeNanos()
+            );
+
+            threadContext.decreasePointerDepth();
+
+            if (threadContext.getPointerDepth() == 0) {
+                threadContext.logMethodTimeTrace(logLevel);
+                threadLocalContext.remove();
+                log.debug("TimeTrackerThreadContext for thread {} completed and removed", currentThreadName);
+            }
+        }
     }
 
     public void trackTime(TimeTrackerInfo timeTrackerInfo, Runnable runnable) {
